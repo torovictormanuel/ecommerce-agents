@@ -1,0 +1,67 @@
+services:
+  # ── Web Service ───────────────────────────────────────────────────────────────
+  - type: web
+    name: ecommerce-agents
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: production
+      - key: PORT
+        value: 8000
+      - key: CONFIG_PATH
+        value: config/business.yaml
+
+      # Redis — inyectado automáticamente desde el servicio de abajo
+      - key: REDIS_URL
+        fromService:
+          name: ecommerce-agents-redis
+          type: redis
+          property: connectionString
+
+      # LLM
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false   # ← cargar manualmente en el dashboard de Render
+
+      # Google Sheets (base64 del credentials.json)
+      - key: DAL_MODE
+        value: sheets
+      - key: SHEETS_SPREADSHEET_ID
+        sync: false
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false   # cat config/credentials.json | base64 -w0
+
+      # MercadoLibre
+      - key: MELI_CLIENT_ID
+        sync: false
+      - key: MELI_CLIENT_SECRET
+        sync: false
+      - key: MELI_ACCESS_TOKEN
+        sync: false
+      - key: MELI_REFRESH_TOKEN
+        sync: false
+      - key: MELI_SELLER_ID
+        sync: false
+
+      # WhatsApp
+      - key: WPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WPP_ACCESS_TOKEN
+        sync: false
+      - key: WPP_VERIFY_TOKEN
+        sync: false
+      - key: WPP_APP_SECRET
+        sync: false
+
+      # Admin
+      - key: ADMIN_API_KEY
+        sync: false
+
+  # ── Redis ─────────────────────────────────────────────────────────────────────
+  - type: redis
+    name: ecommerce-agents-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru

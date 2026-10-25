@@ -1,0 +1,28 @@
+# Secrets — never bake into the image
+.env
+.env.*
+config/credentials*.json
+config/service-account*.json
+*.pem
+*.key
+
+# Dev artifacts
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.idea/
+.vscode/
+*.log
+logs/
+
+# Data files (use Google Sheets in production)
+data/*.xlsx
+data/*.csv
+data/*.json
+!data/.gitkeep
+
+# Git
+.git/
+.gitignore

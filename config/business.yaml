@@ -1,0 +1,147 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  CONFIGURACIÓN DEL NEGOCIO — editar este archivo para personalizar el sistema
+#  Los valores ${VAR} se reemplazan con variables de entorno del archivo .env
+# ══════════════════════════════════════════════════════════════════════════════
+
+business:
+  name: "Mi Tienda Online"
+  description: "Tienda de electrónica y accesorios con envíos a todo el país."
+  industry: "electronics"   # electronics | clothing | food | furniture | general
+  language: "es-AR"         # es-AR | es-MX | es-CL | es-CO | pt-BR
+  currency: "ARS"
+  currency_symbol: "$"
+
+  tone:
+    style: "friendly"       # friendly | professional | casual
+    use_tuteo: true         # true = "vos/tú", false = "usted"
+    emoji_level: "moderate" # none | moderate | expressive
+
+  policies:
+    returns: |
+      Aceptamos devoluciones dentro de los 30 días corridos desde la recepción
+      del producto. El artículo debe estar en su estado original, sin uso y
+      con su embalaje original. Los gastos de envío de la devolución están a
+      cargo del comprador, salvo que el producto presente un defecto de fábrica.
+    warranty: |
+      Todos nuestros productos tienen 12 meses de garantía de fábrica.
+      La garantía cubre defectos de fabricación y no aplica a daños causados
+      por mal uso, golpes o exposición al agua. Para activar la garantía,
+      el cliente debe presentar comprobante de compra.
+    shipping: |
+      Enviamos a todo el país por correo argentino y OCA. El plazo de entrega
+      es de 3 a 7 días hábiles según la localidad. Envío gratis en compras
+      superiores a $50.000. Los envíos se despachan dentro de las 48 hs hábiles
+      de confirmado el pago.
+
+  hours:
+    timezone: "America/Buenos_Aires"
+    schedule:
+      monday:    { open: "09:00", close: "18:00" }
+      tuesday:   { open: "09:00", close: "18:00" }
+      wednesday: { open: "09:00", close: "18:00" }
+      thursday:  { open: "09:00", close: "18:00" }
+      friday:    { open: "09:00", close: "17:00" }
+      saturday:  { open: "10:00", close: "14:00" }
+      sunday:    { open: null,    close: null     }
+    out_of_hours_message: >
+      ¡Hola! 👋 Gracias por contactarnos. Nuestro horario de atención es
+      de lunes a viernes de 9 a 18 hs y sábados de 10 a 14 hs.
+      Tu consulta quedó registrada y te respondemos en cuanto abramos. 🙏
+
+  escalation:
+    email: "soporte@mitienda.com"
+    whatsapp_human: null        # +5491100001234 o null
+    slack_webhook: null         # URL de webhook de Slack o null
+    max_retries_before_escalation: 2
+    escalation_message: >
+      Esto requiere atención personalizada. En un momento te conectamos
+      con alguien de nuestro equipo.
+
+
+# ── Canales activos ────────────────────────────────────────────────────────────
+channels:
+  mercadolibre:
+    enabled: false
+    client_id:     "${MELI_CLIENT_ID}"
+    client_secret: "${MELI_CLIENT_SECRET}"
+    access_token:  "${MELI_ACCESS_TOKEN}"
+    refresh_token: "${MELI_REFRESH_TOKEN}"
+    seller_id:     "${MELI_SELLER_ID}"
+    # Qué eventos escuchar (questions = pre-venta, orders = post-venta)
+    listen: ["questions", "orders", "messages"]
+
+  whatsapp:
+    enabled: false
+    phone_number_id: "${WPP_PHONE_NUMBER_ID}"
+    access_token:    "${WPP_ACCESS_TOKEN}"
+    verify_token:    "${WPP_VERIFY_TOKEN}"
+    app_secret:      "${WPP_APP_SECRET}"
+    # Botones de bienvenida cuando el usuario escribe por primera vez
+    welcome_buttons:
+      - "Ver estado de mi pedido"
+      - "Consultar un producto"
+      - "Hablar con una persona"
+
+  webchat:
+    enabled: true
+    allowed_origins:
+      - "http://localhost:3000"
+      - "https://mitienda.com"
+
+
+# ── Fuente de datos ────────────────────────────────────────────────────────────
+data_source:
+  type: "${DAL_MODE}"   # sheets | excel
+
+  sheets:
+    credentials_path: "${SHEETS_CREDENTIALS_PATH}"
+    spreadsheet_id:   "${SHEETS_SPREADSHEET_ID}"
+    # Mapeo nombre lógico → nombre real de la hoja en Google Sheets
+    sheets_map:
+      inventory:      "Inventario"
+      orders:         "Ordenes"
+      catalog:        "Catalogo"
+      contacts:       "Contactos"
+      unanswered_log: "PregunSinRespuesta"
+
+  excel:
+    file_path: "${EXCEL_FILE_PATH}"
+    sheets_map:
+      inventory:      "Inventario"
+      orders:         "Ordenes"
+      catalog:        "Catalogo"
+      contacts:       "Contactos"
+      unanswered_log: "PregunSinRespuesta"
+
+
+# ── Modelos LLM por agente (opcional — defaults razonables si se omite) ────────
+agents:
+  orchestrator:
+    model:      "openai/gpt-oss-120b"
+    max_tokens: 500
+    temperature: 0.1
+
+  front:
+    model:      "openai/gpt-oss-120b"
+    max_tokens: 1000
+    temperature: 0.3
+
+  whatsapp:
+    model:      "openai/gpt-oss-120b"
+    max_tokens: 800
+    temperature: 0.4
+
+  inventory:
+    model:      "openai/gpt-oss-20b"
+    max_tokens: 600
+    temperature: 0.0
+
+  orders:
+    model:      "openai/gpt-oss-20b"
+    max_tokens: 800
+    temperature: 0.1
+
+  copy:
+    model:      "openai/gpt-oss-120b"
+    max_tokens: 2000
+    temperature: 0.6
